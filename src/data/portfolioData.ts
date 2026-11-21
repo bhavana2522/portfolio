@@ -52,8 +52,8 @@ export const PROFILE = {
   phone: '+91 9767537552',
   email: 'bhavanamasare73@gmail.com',
   availability: 'Open to Entry-Level Software & IT Opportunities',
-  resumeUrl: '/assets/aistudio/BhavanaMasare_5_cc51a045.pdf',
-  photoUrl: '/assets/aistudio/WhatsApp_Image_2026-11-15_at_10.48.13_AM_178cc671.jpeg',
+  resumeUrl: './assets/aistudio/BhavanaMasare_5_cc51a045.pdf',
+  photoUrl: './assets/aistudio/WhatsApp_Image_2026-11-15_at_10.48.13_AM_178cc671.jpeg',
   summary:
     'Information Technology graduate currently pursuing an M.Tech in Computer Science, with foundational knowledge of programming, database management, software development, and problem-solving. Familiar with Python, C, C++, Java, SQL, and modern web technologies—combining collaborative engineering experience across e-commerce, AI-assisted education, and responsive web interfaces.',
   careerInterests: [

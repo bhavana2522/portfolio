@@ -1,14 +1,8 @@
-import { useRef, useState, MouseEvent } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValue,
-  useSpring,
-  useReducedMotion,
-} from 'motion/react';
+import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 import { ArrowDownRight, ArrowUpRight, Sun, Moon, Layers, Code2, Database, Sparkles } from 'lucide-react';
 import { PROFILE } from '../data/portfolioData';
+import { InteractiveIdCard } from './InteractiveIdCard';
 
 interface HeroSectionProps {
   onOpenResume: () => void;
@@ -52,7 +46,6 @@ const HIGHLIGHT_ACCENTS = ['#F2B705', '#3B82F6', '#10B981', '#F43F5E'];
 export function HeroSection({ onOpenResume, isDark, onToggleTheme }: HeroSectionProps) {
   const heroRef = useRef<HTMLElement | null>(null);
   const [activeTabId, setActiveTabId] = useState<string>('web');
-  const [imgError, setImgError] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
@@ -60,34 +53,8 @@ export function HeroSection({ onOpenResume, isDark, onToggleTheme }: HeroSection
     offset: ['start start', 'end start'],
   });
 
-  const portraitScrollY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : 48]);
-  const copyScrollY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : -20]);
-
-  // Interactive 3D tilt for the portrait card
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [7, -7]), {
-    stiffness: 180,
-    damping: 24,
-  });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-7, 7]), {
-    stiffness: 180,
-    damping: 24,
-  });
-
-  const handleCardMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (shouldReduceMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xPct = (e.clientX - rect.left) / rect.width - 0.5;
-    const yPct = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(xPct);
-    mouseY.set(yPct);
-  };
-
-  const handleCardMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
+  const portraitScrollY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : 40]);
+  const copyScrollY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : -18]);
 
   const activeTab = FOCUS_TABS.find((t) => t.id === activeTabId) ?? FOCUS_TABS[0];
 
@@ -104,8 +71,8 @@ export function HeroSection({ onOpenResume, isDark, onToggleTheme }: HeroSection
         <div className="animate-ambient absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-emerald-500/10 dark:bg-emerald-500/12 blur-3xl" />
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 lg:pt-16 lg:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-12 lg:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left column: Typographic hierarchy & interactive stack tabs */}
           <motion.div
             style={{ y: copyScrollY }}
@@ -249,89 +216,15 @@ export function HeroSection({ onOpenResume, isDark, onToggleTheme }: HeroSection
             </div>
           </motion.div>
 
-          {/* Right column: Interactive 3D Tilt Portrait Card */}
+          {/* Right column: Interactive Swinging & Click-to-Flip Lanyard ID Card */}
           <motion.div
-            style={{ y: portraitScrollY, perspective: 1000 }}
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            style={{ y: portraitScrollY }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 flex"
+            className="lg:col-span-5 flex justify-center"
           >
-            <motion.div
-              onMouseMove={handleCardMouseMove}
-              onMouseLeave={handleCardMouseLeave}
-              style={{
-                rotateX: shouldReduceMotion ? 0 : rotateX,
-                rotateY: shouldReduceMotion ? 0 : rotateY,
-                transformStyle: 'preserve-3d',
-              }}
-              className="relative w-full rounded-2xl p-[1.5px] bg-gradient-to-br from-[#3B82F6] via-[#10B981] to-[#F59E0B] flex"
-            >
-              <div className="w-full rounded-[15px] bg-white dark:bg-[#0D0D10] p-4 sm:p-5 flex flex-col justify-between gap-4">
-                {/* Portrait photograph container */}
-                <div className="relative flex-1 min-h-[300px] sm:min-h-[340px] rounded-xl overflow-hidden bg-white border border-zinc-200 dark:border-zinc-800">
-                  {!imgError ? (
-                    <img
-                      src={PROFILE.photoUrl}
-                      alt="Bhavana N Masare portrait"
-                      referrerPolicy="no-referrer"
-                      onError={() => setImgError(true)}
-                      className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-[1.03]"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-500/15 via-emerald-500/15 to-amber-500/15 p-6 text-center">
-                      <span className="font-display text-4xl font-bold text-zinc-900 dark:text-zinc-100">
-                        BM
-                      </span>
-                      <span className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
-                        {PROFILE.name}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Subtle bottom gradient scrim for legible caption over studio edge */}
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 via-black/35 to-transparent"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between gap-3 text-white">
-                    <div>
-                      <p className="font-display text-lg font-bold leading-tight">
-                        {PROFILE.name}
-                      </p>
-                      <p className="text-xs text-zinc-200">
-                        M.Tech CS · B.Tech IT
-                      </p>
-                    </div>
-                    <span className="font-mono text-[11px] text-[#F2B705] shrink-0">
-                      India
-                    </span>
-                  </div>
-                </div>
-
-                {/* Chromatic discipline strip inside the frame */}
-                <div className="grid grid-cols-3 gap-2 pt-1 text-center">
-                  <div className="rounded-lg bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 px-2.5 py-2">
-                    <p className="font-mono text-[11px] text-[#3B82F6] font-medium">Web</p>
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 truncate">
-                      React · Node
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 px-2.5 py-2">
-                    <p className="font-mono text-[11px] text-[#10B981] font-medium">AI &amp; Code</p>
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 truncate">
-                      Python · Java
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 px-2.5 py-2">
-                    <p className="font-mono text-[11px] text-[#F59E0B] font-medium">Data</p>
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 truncate">
-                      SQL · Power BI
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <InteractiveIdCard onOpenResume={onOpenResume} />
           </motion.div>
         </div>
 
